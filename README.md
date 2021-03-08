@@ -22,7 +22,7 @@ To run the playbook execute the following commands:
 
 ```bash
 cd ansible
-ansible-playbook playbooks/acs.yml
+ansible-playbook playbooks/acs.yml -i inventory
 ```
 
 The playbook will fail with a couple of different errors, your challenge is to identify and fix the errors.
