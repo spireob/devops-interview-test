@@ -1,0 +1,132 @@
+[user1@master-node helm]$ helm install acs alfresco-content-services -n devops-test -f ./alfresco-content-services/values.yaml -f ./alfresco-content-services/requirements.yaml
+NAME: acs
+LAST DEPLOYED: Tue Mar  9 15:43:45 2021
+NAMESPACE: devops-test
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+You can access all components of Alfresco Content Services using the same root address, but different paths as follows:
+
+  Content: http://NodeIp:NodePort/alfresco
+[user1@master-node helm]$ helm install alfresco-content-services -n devops-test -f ./alfresco-content-services/values.yaml -f ./alfresco-content-services/requirements.yaml
+Error: must either provide a name or specify --generate-name
+[user1@master-node helm]$ helm install alfresco-content-services -n devops-test -f ./alfresco-content-services/values.yaml -f ./alfresco-content-services/requirements.yaml helm status  ^C
+[user1@master-node helm]$  helm status acs
+Error: release: not found
+[user1@master-node helm]$ helm list
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+[user1@master-node helm]$ helm list -n devops-test
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+acs     devops-test     1               2021-03-09 15:43:45.603767915 +0000 UTC deployed        alfresco-content-services-1
+[user1@master-node helm]$  helm status acs -n devops-test
+NAME: acs
+LAST DEPLOYED: Tue Mar  9 15:43:45 2021
+NAMESPACE: devops-test
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+You can access all components of Alfresco Content Services using the same root address, but different paths as follows:
+
+  Content: http://NodeIp:NodePort/alfresco
+
+
+[user1@master-node helm]$ helm install acs alfresco-content-services -n devops-test
+NAME: acs
+LAST DEPLOYED: Tue Mar  9 15:50:25 2021
+NAMESPACE: devops-test
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+You can access all components of Alfresco Content Services using the same root address, but different paths as follows:
+
+  Content: http://NodeIp:NodePort/alfresco
+[user1@master-node helm]$  helm status acs -n devops-test
+NAME: acs
+LAST DEPLOYED: Tue Mar  9 15:50:25 2021
+NAMESPACE: devops-test
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+You can access all components of Alfresco Content Services using the same root address, but different paths as follows:
+
+  Content: http://NodeIp:NodePort/alfresco
+[user1@master-node helm]$ helm list -n devops-test
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+acs     devops-test     1               2021-03-09 15:50:25.515049283 +0000 UTC deployed        alfresco-content-services-1
+
+
+[user1@master-node helm]$ kubectl get pods -n devops-test
+NAME                                          READY   STATUS    RESTARTS   AGE
+acs-activemq-5477c646c4-8x5cx                 0/1     Running   0          45s
+acs-alfresco-cs-repository-6b46bd8b58-z7vsp   0/1     Running   0          45s
+acs-postgresql-acs-0                          1/1     Running   0          40s
+[user1@master-node helm]$ kubectl get nodes
+NAME          STATUS   ROLES                  AGE   VERSION
+master-node   Ready    control-plane,master   25h   v1.20.4
+[user1@master-node helm]$ kubectl get service
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   25h
+
+
+
+[root@master-node helm]#  helm install acs alfresco-content-services --devel --values=./alfresco-content-services/values.yaml --set externalPort="80" --set externalProtocol="http" --set externalHost="localhost" --namespace=devops-test   
+NAME: acs
+LAST DEPLOYED: Tue Mar  9 16:14:29 2021
+NAMESPACE: devops-test
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+You can access all components of Alfresco Content Services using the same root address, but different paths as follows:
+
+  Content: http://NodeIp:NodePort/alfresco
+[root@master-node helm]# kubectl get service  -n devops-test
+NAME                                             TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                        AGE
+acs-activemq-broker                              ClusterIP      10.109.136.32    <none>        61613/TCP,61616/TCP,5672/TCP   11s
+acs-activemq-web-console                         NodePort       10.96.28.180     <none>        8161:31146/TCP                 10s
+acs-alfresco-cs-repository                       ClusterIP      10.109.188.57    <none>        80/TCP                         11s
+acs-ingress-ingress-nginx-controller             LoadBalancer   10.98.226.25     <pending>     80:31816/TCP,443:31986/TCP     8m50s
+acs-ingress-ingress-nginx-controller-admission   ClusterIP      10.111.11.98     <none>        443/TCP                        8m50s
+acs-postgresql-acs                               ClusterIP      10.101.119.137   <none>        5432/TCP                       11s
+acs-postgresql-acs-headless                      ClusterIP      None             <none>        5432/TCP                       11s
+
+
+
+
+
+kubectl logs -f acs-alfresco-cs-repository-5b897c764d-9fzlx -n devops-test
+
+Caused by: org.springframework.jdbc.CannotGetJdbcConnectionException: Failed to obtain JDBC Connection; nested exception is org.apache.commons.dbcp.SQLNestedException: Cannot load JDBC driver class 'org.gjt.mm.mysql.Driver'
+        at org.springframework.jdbc.datasource.DataSourceUtils.getConnection(DataSourceUtils.java:82)
+        at org.alfresco.repo.domain.dialect.DialectFactoryBean.getObject(DialectFactoryBean.java:59)
+        at org.alfresco.repo.domain.dialect.DialectFactoryBean.getObject(DialectFactoryBean.java:1)
+        at java.base/java.security.AccessController.doPrivileged(Native Method)
+        at org.springframework.beans.factory.support.FactoryBeanRegistrySupport.doGetObjectFromFactoryBean(FactoryBeanRegistrySupport.java:162)
+        ... 122 more
+Caused by: org.apache.commons.dbcp.SQLNestedException: Cannot load JDBC driver class 'org.gjt.mm.mysql.Driver'
+        at org.apache.commons.dbcp.BasicDataSource.createConnectionFactory(BasicDataSource.java:1429)
+        at org.apache.commons.dbcp.BasicDataSource.createDataSource(BasicDataSource.java:1371)
+        at org.apache.commons.dbcp.BasicDataSource.getConnection(BasicDataSource.java:1044)
+        at org.springframework.jdbc.datasource.DataSourceUtils.fetchConnection(DataSourceUtils.java:158)
+        at org.springframework.jdbc.datasource.DataSourceUtils.doGetConnection(DataSourceUtils.java:116)
+        at org.springframework.jdbc.datasource.DataSourceUtils.getConnection(DataSourceUtils.java:79)
+        ... 126 more
+Caused by: java.lang.ClassNotFoundException: org.gjt.mm.mysql.Driver
+        at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1358)
+        at org.apache.catalina.loader.WebappClassLoaderBase.loadClass(WebappClassLoaderBase.java:1180)
+        at org.apache.commons.dbcp.BasicDataSource.createConnectionFactory(BasicDataSource.java:1420)
+        ... 131 more
+09-Mar-2021 16:15:24.543 SEVERE [localhost-startStop-1] org.apache.catalina.core.StandardContext.startInternal One or more listeners failed to start. Full details will be found in the appropriate container log file
+09-Mar-2021 16:15:24.549 SEVERE [localhost-startStop-1] org.apache.catalina.core.StandardContext.startInternal Context [/alfresco] startup failed due to previous errors
+09-Mar-2021 16:15:24.658 WARNING [localhost-startStop-1] org.apache.catalina.loader.WebappClassLoaderBase.clearReferencesJdbc The web application [alfresco] registered the JDBC driver [org.postgresql.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+09-Mar-2021 16:15:24.671 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory [/usr/local/tomcat/webapps/alfresco] has finished in [22,154] ms
+09-Mar-2021 16:15:24.671 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory [/usr/local/tomcat/webapps/api-explorer]
+09-Mar-2021 16:15:24.777 INFO [localhost-startStop-1] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+09-Mar-2021 16:15:25.483 INFO [localhost-startStop-1] org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory [/usr/local/tomcat/webapps/api-explorer] has finished in [812] ms
+09-Mar-2021 16:15:25.487 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
+09-Mar-2021 16:15:25.502 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 24455 ms
+
